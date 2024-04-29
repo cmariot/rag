@@ -1,0 +1,74 @@
+services:
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - backend_volume:/app
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgresql
+    restart: unless-stopped
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/srcs:/app
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  postgresql:
+    container_name: postgresql
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./postgresql/.env
+    restart: unless-stopped
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    ports:
+      - 1337:80
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
+  # llm:
+  #   container_name: llm
+  #   build:
+  #     context: ./llm
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8001:8001
+
+
+volumes:
+  postgres_data:
+  static_volume:
+  frontend_volume:
+    driver_opts:
+      type: none
+      device: /home/cmariot/rag/frontend
+      o: bind
+  backend_volume:
+    driver_opts:
+      type: none
+      device: /home/cmariot/rag/backend/srcs
+      o: bind
+

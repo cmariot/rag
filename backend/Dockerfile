@@ -4,7 +4,9 @@ WORKDIR /usr/src/app
 
 RUN apt update
 RUN apt upgrade -y
-RUN apt install -y netcat iputils-ping
+RUN apt install -y netcat
+# install ping
+# RUN apt install -y iputils-ping
 
 # install dependencies
 COPY ./requirements.txt .
@@ -15,11 +17,8 @@ RUN pip install -r requirements.txt
 COPY ./entrypoint.sh .
 RUN chmod +x /usr/src/app/entrypoint.sh
 
-# PYTHONDONTWRITEBYTECODE : Prevents Python from writing pyc files to disc
-ENV PYTHONDONTWRITEBYTECODE 1
-# PYTHONUNBUFFERED : Prevents Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED 1
+WORKDIR /app
 
-WORKDIR /app/srcs
-
+# Ping localohost
+# ENTRYPOINT [ "ping", "localhost" ]
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]

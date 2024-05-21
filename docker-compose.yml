@@ -12,7 +12,7 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - postgresql
+      - bdd
     restart: unless-stopped
 
   frontend:
@@ -26,19 +26,19 @@ services:
       - backend
     restart: unless-stopped
 
-  postgresql:
-    container_name: postgresql
+  bdd:
+    container_name: bdd
     image: postgres:15
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - bdd_data:/var/lib/postgresql/data/
     env_file:
-      - ./postgresql/.env
+      - ./bdd/.env
     restart: unless-stopped
 
-  nginx:
-    container_name: nginx
+  reverse_proxy:
+    container_name: reverse_proxy
     build:
-      context: ./nginx
+      context: ./reverse_proxy
       dockerfile: Dockerfile
     volumes:
       - static_volume:/home/app/web/staticfiles
@@ -71,4 +71,8 @@ volumes:
       type: none
       device: /home/cmariot/rag/backend/srcs
       o: bind
-
+  bdd_data:
+    driver_opts:
+      type: none
+      device: /home/cmariot/rag/bdd/data
+      o: bind
